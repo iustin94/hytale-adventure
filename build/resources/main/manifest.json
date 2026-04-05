@@ -1,0 +1,12 @@
+{
+  "Group": "dev.hytalemodding",
+  "Name": "HyAdventure",
+  "Version": "1.0.0",
+  "Description": "REST API for Hytale Adventure module — objectives, reputation, shops, farming, memories, camera, teleporters",
+  "Authors": [{"Name": "iustinian"}],
+  "Main": "dev.hytalemodding.hyadventure.HyAdventurePlugin",
+  "IncludesAssetPack": false,
+  "OptionalDependencies": {
+    "HytaleModding:ExamplePlugin": "*"
+  }
+}
