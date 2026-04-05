@@ -1,5 +1,8 @@
 package dev.hytalemodding.hyadventure.models;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class AuthoredDialog {
     private String id = "";
     private String entityNameKey = "";
@@ -7,6 +10,7 @@ public class AuthoredDialog {
     private String entityNameText = "";
     private String dialogText = "";
     private int sequence = 0;
+    private List<AuthoredDialogStep> steps = new ArrayList<>();
 
     public String getId() { return id; }
     public void setId(String id) { this.id = id; }
@@ -20,4 +24,6 @@ public class AuthoredDialog {
     public void setDialogText(String v) { this.dialogText = v; }
     public int getSequence() { return sequence; }
     public void setSequence(int v) { this.sequence = v; }
+    public List<AuthoredDialogStep> getSteps() { return steps; }
+    public void setSteps(List<AuthoredDialogStep> v) { this.steps = v; }
 }

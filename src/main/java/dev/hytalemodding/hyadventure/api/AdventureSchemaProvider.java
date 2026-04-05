@@ -615,6 +615,8 @@ public class AdventureSchemaProvider implements DashboardSchemaProvider {
             case "linkDialogToNpc" -> plugin.getAuthoringService().linkDialogToNpc(params.get("npcAssignmentId"), params.get("dialogId"));
             case "createDialog" -> plugin.getAuthoringService().createDialog(params);
             case "deleteDialog" -> plugin.getAuthoringService().deleteDialog(params.get("dialogId"));
+            case "addDialogStep" -> plugin.getAuthoringService().addDialogStep(params.get("dialogId"), params);
+            case "addDialogChoice" -> plugin.getAuthoringService().addDialogChoice(params.get("dialogId"), params.get("stepId"), params);
             case "createLocation" -> plugin.getAuthoringService().createLocation(params);
             case "deleteLocation" -> plugin.getAuthoringService().deleteLocation(params.get("locationId"));
             case "generateTemplates" -> plugin.getTemplateService().generateAllTemplates();

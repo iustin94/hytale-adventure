@@ -14,11 +14,11 @@ import com.hypixel.hytale.server.core.io.adapter.PacketAdapters;
 import com.hypixel.hytale.server.core.io.adapter.PacketWatcher;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.Universe;
+import com.hypixel.hytale.server.core.entity.entities.Player;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
-import dev.hytalemodding.hyadventure.models.AuthoredNpcAssignment;
-import dev.hytalemodding.hyadventure.models.AuthoredQuestLine;
-import dev.hytalemodding.hyadventure.models.NpcAssignmentType;
+import dev.hytalemodding.hyadventure.models.*;
+import dev.hytalemodding.hyadventure.pages.QuestDialogPage;
 
 import javax.annotation.Nonnull;
 import java.util.UUID;
@@ -91,17 +91,41 @@ public class QuestInteractionListener implements PacketWatcher {
 
         String npcUuid = uuidComp.getUuid().toString();
 
-        // Look up quest assignment by NPC UUID
-        String objectiveId = findQuestObjectiveForNpc(npcUuid);
-        if (objectiveId == null) return;
+        // Look up quest dialog for this NPC
+        AuthoredDialog dialog = findDialogForNpc(npcUuid);
+        if (dialog == null) return;
 
-        // Start the objective for this player
+        // Open the quest dialog page for this player
         try {
-            NPCObjectivesPlugin.startObjective(playerRef.getReference(), objectiveId, store);
-            LOGGER.atInfo().log("[HyAdventure] Started quest objective '" + objectiveId + "' for player " + playerUuid + " via NPC " + npcUuid);
+            Player playerComp = store.getComponent(playerRef.getReference(), Player.getComponentType());
+            if (playerComp != null) {
+                playerComp.getPageManager().openCustomPage(
+                        playerRef.getReference(), store,
+                        new QuestDialogPage(playerRef, dialog, 0));
+                LOGGER.atInfo().log("[HyAdventure] Opened quest dialog for player " + playerUuid + " via NPC " + npcUuid);
+            }
         } catch (Exception e) {
-            LOGGER.atWarning().log("[HyAdventure] Failed to start objective: " + e.getMessage());
+            LOGGER.atWarning().log("[HyAdventure] Failed to open dialog: " + e.getMessage());
+
+            // Fallback: try starting objective directly
+            String objectiveId = findQuestObjectiveForNpc(npcUuid);
+            if (objectiveId != null) {
+                try { NPCObjectivesPlugin.startObjective(playerRef.getReference(), objectiveId, store); }
+                catch (Exception ex) { LOGGER.atWarning().log("[HyAdventure] Fallback objective start failed: " + ex.getMessage()); }
+            }
         }
+    }
+
+    /**
+     * Finds the dialog assigned to this NPC UUID.
+     */
+    private AuthoredDialog findDialogForNpc(String npcUuid) {
+        for (AuthoredNpcAssignment npc : authoring.getData().getNpcAssignments()) {
+            if (!npcUuid.equals(npc.getNpcEntityUuid())) continue;
+            if (npc.getDialogId().isEmpty()) continue;
+            return authoring.findDialog(npc.getDialogId());
+        }
+        return null;
     }
 
     /**

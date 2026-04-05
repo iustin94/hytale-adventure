@@ -584,6 +584,7 @@ public class QuestAuthoringService {
         m.put("dlg_entityNameKey", dlg.getEntityNameKey());
         m.put("dlg_dialogKey", dlg.getDialogKey());
         m.put("dlg_sequence", dlg.getSequence());
+        m.put("dlg_stepCount", dlg.getSteps().size());
         return m;
     }
 
@@ -617,6 +618,44 @@ public class QuestAuthoringService {
         for (AuthoredDialog d : getData().getDialogs())
             if (d.getId().equals(id)) return d;
         return null;
+    }
+
+    // ── Dialog Step CRUD ──────────────────────────────────────────────────────
+
+    public Map<String, Object> addDialogStep(String dialogId, Map<String, String> params) {
+        AuthoredDialog dlg = findDialog(dialogId);
+        if (dlg == null) return error("Dialog not found");
+
+        String stepId = params.getOrDefault("stepId", "step_" + dlg.getSteps().size());
+        AuthoredDialogStep step = new AuthoredDialogStep();
+        step.setId(stepId);
+        step.setSpeakerNameText(params.getOrDefault("speakerNameText", dlg.getEntityNameText()));
+        step.setDialogText(params.getOrDefault("dialogText", ""));
+        step.setNextStepId(params.getOrDefault("nextStepId", ""));
+        dlg.getSteps().add(step);
+        configManager.save();
+        return Map.of("success", true, "message", "Dialog step added: " + stepId);
+    }
+
+    public Map<String, Object> addDialogChoice(String dialogId, String stepId, Map<String, String> params) {
+        AuthoredDialog dlg = findDialog(dialogId);
+        if (dlg == null) return error("Dialog not found");
+
+        AuthoredDialogStep step = dlg.getSteps().stream()
+                .filter(s -> s.getId().equals(stepId)).findFirst().orElse(null);
+        if (step == null) return error("Step not found: " + stepId);
+
+        String choiceId = params.getOrDefault("choiceId", "choice_" + step.getChoices().size());
+        AuthoredDialogChoice choice = new AuthoredDialogChoice();
+        choice.setId(choiceId);
+        choice.setLabelText(params.getOrDefault("labelText", ""));
+        choice.setDescriptionText(params.getOrDefault("descriptionText", ""));
+        choice.setNextStepId(params.getOrDefault("nextStepId", ""));
+        choice.setStartObjectiveId(params.getOrDefault("startObjectiveId", ""));
+        choice.setGiveItemId(params.getOrDefault("giveItemId", ""));
+        step.getChoices().add(choice);
+        configManager.save();
+        return Map.of("success", true, "message", "Choice added: " + choiceId);
     }
 
     // ── Location CRUD ────────────────────────────────────────────────────────

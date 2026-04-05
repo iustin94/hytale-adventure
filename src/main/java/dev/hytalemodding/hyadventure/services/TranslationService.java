@@ -87,6 +87,23 @@ public class TranslationService {
                         : dlg.getDialogText();
                 translations.put(dlg.getDialogKey(), dialogText);
             }
+
+            // Dialog step translations
+            for (int i = 0; i < dlg.getSteps().size(); i++) {
+                var step = dlg.getSteps().get(i);
+                if (!step.getSpeakerNameText().isEmpty()) {
+                    translations.put(dlg.getId() + "_step_" + i + "_name", step.getSpeakerNameText());
+                }
+                if (!step.getDialogText().isEmpty()) {
+                    translations.put(dlg.getId() + "_step_" + i + "_text", step.getDialogText());
+                }
+                for (int j = 0; j < step.getChoices().size(); j++) {
+                    var choice = step.getChoices().get(j);
+                    if (!choice.getLabelText().isEmpty()) {
+                        translations.put(dlg.getId() + "_step_" + i + "_choice_" + j, choice.getLabelText());
+                    }
+                }
+            }
         }
 
         writeLangFile(translations);
