@@ -145,7 +145,8 @@ public class AdventureSchemaProvider implements DashboardSchemaProvider {
                         enumField("npc_role", "NPC Role", npcRoles),
                         enumField("npc_type", "Assignment Type", NPC_ASSIGNMENT_TYPES),
                         field("npc_dialogId", "Dialog", "string", true),
-                        field("npc_locationId", "Location Filter", "string", true)
+                        field("npc_locationId", "Location Filter", "string", true),
+                        field("npc_entityUuid", "NPC Entity UUID", "string", true)
                 )),
                 fieldGroup("dialogDetail", "Dialog", 15, List.of(
                         field("dlg_id", "ID", "string", true),
@@ -480,6 +481,7 @@ public class AdventureSchemaProvider implements DashboardSchemaProvider {
         }
         if (values.containsKey("npc_dialogId")) npc.setDialogId(values.get("npc_dialogId"));
         if (values.containsKey("npc_locationId")) npc.setLocationId(values.get("npc_locationId"));
+        if (values.containsKey("npc_entityUuid")) npc.setNpcEntityUuid(values.get("npc_entityUuid"));
         plugin.getAuthoringService().save();
         return List.of();
     }

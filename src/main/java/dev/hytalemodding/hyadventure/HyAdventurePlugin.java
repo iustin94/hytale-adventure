@@ -28,9 +28,9 @@ public class HyAdventurePlugin extends JavaPlugin {
     private ConfigManager configManager;
     private QuestAuthoringService authoringService;
     private QuestRegistrationService registrationService;
-    private QuestRoleService questRoleService;
     private TranslationService translationService;
     private QuestTemplateService templateService;
+    private QuestInteractionListener questInteractionListener;
 
     public HyAdventurePlugin(@Nonnull JavaPluginInit init) {
         super(init);
@@ -53,21 +53,20 @@ public class HyAdventurePlugin extends JavaPlugin {
         this.configManager = new ConfigManager(Path.of("mods/HyAdventureData"));
         this.authoringService = new QuestAuthoringService(configManager);
         this.registrationService = new QuestRegistrationService(configManager);
-        this.questRoleService = new QuestRoleService(authoringService);
         this.translationService = new TranslationService(authoringService);
         this.templateService = new QuestTemplateService(authoringService);
+        this.questInteractionListener = new QuestInteractionListener(authoringService);
         this.registrationService.registerAllOnStartup();
         this.translationService.regenerate();
 
-        // Register quest giver provider so other plugins (e.g., HyCitizens) can query it
-        dev.hytalemodding.api.ServiceRegistry.register(
-                dev.hytalemodding.api.services.QuestGiverProvider.class, questRoleService);
-
-        LOGGER.atInfo().log("[HyAdventure] Setup complete — 12 services initialized.");
+        LOGGER.atInfo().log("[HyAdventure] Setup complete.");
     }
 
     @Override
     protected void start() {
+        // Register interaction listener for UUID-based quest giver
+        questInteractionListener.register();
+
         try {
             dev.hytalemodding.api.DashboardRegistry.register(new AdventureSchemaProvider(this));
 
@@ -102,7 +101,6 @@ public class HyAdventurePlugin extends JavaPlugin {
     @Nonnull public StashService getStashService() { return stashService; }
     @Nonnull public QuestAuthoringService getAuthoringService() { return authoringService; }
     @Nonnull public QuestRegistrationService getRegistrationService() { return registrationService; }
-    @Nonnull public QuestRoleService getQuestRoleService() { return questRoleService; }
     @Nonnull public TranslationService getTranslationService() { return translationService; }
     @Nonnull public QuestTemplateService getTemplateService() { return templateService; }
 }

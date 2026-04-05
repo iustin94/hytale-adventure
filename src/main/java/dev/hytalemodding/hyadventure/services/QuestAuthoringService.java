@@ -474,6 +474,7 @@ public class QuestAuthoringService {
         m.put("npc_type", npc.getAssignmentType().name());
         m.put("npc_dialogId", npc.getDialogId());
         m.put("npc_locationId", npc.getLocationId());
+        m.put("npc_entityUuid", npc.getNpcEntityUuid());
         return m;
     }
 
@@ -520,7 +521,7 @@ public class QuestAuthoringService {
         if (npc == null) return error("NPC assignment not found");
 
         if (line.getObjectiveIds().isEmpty()) {
-            return error("Quest line has no objectives. Add at least one objective before assigning a quest giver.");
+            return error("Quest line has no objectives.");
         }
 
         // Register objective and quest line assets with the engine
@@ -538,23 +539,10 @@ public class QuestAuthoringService {
         line.setQuestGiverNpcId(npcAssignmentId);
         configManager.save();
 
-        // Trigger role regeneration + respawn via NpcRoleManager (if available)
-        if (!npc.getNpcRole().isEmpty()) {
-            try {
-                var roleManager = dev.hytalemodding.api.ServiceRegistry.get(
-                        dev.hytalemodding.api.services.NpcRoleManager.class);
-                if (roleManager != null) {
-                    roleManager.regenerateAndRespawn(npc.getNpcRole(), "default");
-                    return Map.of("success", true, "message", "Quest giver set and NPC respawned");
-                }
-            } catch (Exception e) {
-                return Map.of("success", true, "message",
-                        "Quest giver set but respawn failed: " + e.getMessage());
-            }
-        }
-
+        // UUID-based matching — the QuestInteractionListener handles quest triggering
+        // at runtime via packet interception. No role file changes or NPC respawn needed.
         return Map.of("success", true, "message",
-                "Quest giver set. Respawn the NPC manually to apply changes.");
+                "Quest giver assigned. NPC will offer the quest on next F-key interaction.");
     }
 
     public Map<String, Object> linkDialogToNpc(String npcAssignmentId, String dialogId) {

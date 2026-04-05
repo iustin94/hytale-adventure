@@ -6,6 +6,7 @@ public class AuthoredNpcAssignment {
     private NpcAssignmentType assignmentType = NpcAssignmentType.QUEST_GIVER;
     private String dialogId = "";
     private String locationId = "";
+    private String npcEntityUuid = "";
 
     public String getId() { return id; }
     public void setId(String id) { this.id = id; }
@@ -17,4 +18,6 @@ public class AuthoredNpcAssignment {
     public void setDialogId(String v) { this.dialogId = v; }
     public String getLocationId() { return locationId; }
     public void setLocationId(String v) { this.locationId = v; }
+    public String getNpcEntityUuid() { return npcEntityUuid; }
+    public void setNpcEntityUuid(String v) { this.npcEntityUuid = v; }
 }
